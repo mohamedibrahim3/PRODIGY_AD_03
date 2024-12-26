@@ -1,5 +1,8 @@
 package com.mada.stopwatchapp.presentation.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mada.stopwatchapp.data.StopwatchState
@@ -10,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 
-class StopwatchViewModel:ViewModel() {
+class StopwatchViewModel(private val preferences: SharedPreferences):ViewModel() {
 
     private val _state = MutableStateFlow(StopwatchState())
     val state: StateFlow<StopwatchState> = _state
