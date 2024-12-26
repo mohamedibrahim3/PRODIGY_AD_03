@@ -1,5 +1,6 @@
 package com.mada.stopwatchapp.presentation.screen
 
+import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,21 +20,27 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mada.stopwatchapp.presentation.viewmodel.StopwatchViewModel
+import com.mada.stopwatchapp.presentation.viewmodel.StopwatchViewModelFactory
+
 
 @Composable
 fun StopwatchScreen() {
-    val viewModel: StopwatchViewModel = viewModel()
+    val context = LocalContext.current.applicationContext as Application
+    val viewModel: StopwatchViewModel = viewModel(
+        factory = StopwatchViewModelFactory(context)
+    )
     val state = viewModel.state.collectAsState()
 
     StopwatchContent(
         time = state.value.milliseconds,
-        onStart = { viewModel.startTime() },
+        onStart = { viewModel.startTimer() },
         onPause = { viewModel.pauseTimer() },
         onReset = { viewModel.resetTimer() }
     )

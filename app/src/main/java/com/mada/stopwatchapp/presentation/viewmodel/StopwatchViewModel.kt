@@ -1,7 +1,5 @@
 package com.mada.stopwatchapp.presentation.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,9 +18,19 @@ class StopwatchViewModel(private val preferences: SharedPreferences):ViewModel()
 
     private var timerJob: Job? = null
 
-    fun startTime(){
+    init {
+        val savedMilliseconds = preferences.getLong("milliseconds", 0L)
+        val wasRunning = preferences.getBoolean("isRunning", false)
+        _state.value = StopwatchState(milliseconds = savedMilliseconds, isRunning = wasRunning)
+
+        if (wasRunning) {
+            startTimer()
+        }
+    }
+    fun startTimer(){
         if(_state.value.isRunning) return
         _state.value = _state.value.copy(isRunning = true)
+        saveState()
 
         timerJob = viewModelScope.launch {
             while (_state.value.isRunning){
@@ -30,17 +38,27 @@ class StopwatchViewModel(private val preferences: SharedPreferences):ViewModel()
                 _state.value = _state.value.copy(
                     milliseconds = _state.value.milliseconds + 10
                 )
+                saveState()
             }
         }
     }
     fun pauseTimer() {
         _state.value = _state.value.copy(isRunning = false)
         timerJob?.cancel()
+        saveState()
     }
 
     fun resetTimer() {
         pauseTimer()
         _state.value = StopwatchState()
+        saveState()
+    }
+    private fun saveState(){
+        preferences.edit().apply {
+            putLong("milliseconds", _state.value.milliseconds)
+            putBoolean("isRunning", _state.value.isRunning)
+            apply()
+        }
     }
 
 }
